@@ -10,20 +10,24 @@ v0 = K(2,3);
 
 numPw = size(Pw,2);
 
-%pick 4 random points as control point
-randCi = randperm(numPw);
-randCi = randCi(1:numCp);
-Cw = Pw(:,randCi);
-
-%express all the point using control point
+isValid = false;
 Acp = zeros(numCp,numPw);
-for i=1:numPw
+while ~isValid 
+    %pick 4 random points as control point
+    randCi = randperm(numPw);
+    randCi = randCi(1:numCp);
+    Cw = Pw(:,randCi);
 
-    acp = Cw\Pw(:,i);
-    Acp(:,i) = acp;
+    %express all the point using control point
+    for i=1:numPw
+        acp = Cw\Pw(:,i);
+        Acp(:,i) = acp;  
+    end
     
+    if isempty(find(Acp==Inf))
+        isValid = true;
+    end
 end
-
 %solve the control point in camer coordinate
 M = zeros(numPw*2,3*numCp);
 for i = 1:numPw
