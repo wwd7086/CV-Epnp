@@ -1,8 +1,9 @@
 clear;close;
 addpath('OpenSURF_version1c');
+addpath(genpath('MatchPoint'));
 %-------- read reference image ------------------
 I = imread('reference.jpg');
-I2 = imread('view2.jpg');
+I2 = imread('view4.jpg');
 %-------- make surface masks --------------------
 [~,~, front_mask] = imread('front mask.png','PNG');
 front_mask = bsxfun(@gt,front_mask,0);
@@ -15,8 +16,9 @@ masks{2}=side_mask;
 masks{3}=top_mask;
 
 %-------- load corner points --------------------
-load('cornerPointsSample');
-load('cornerPointsTest')
+%load('cornerPointsSample');
+%load('cornerPointsTest');
+load('cornerPointsFinal');
 
 %-------- calculate H matrixs for getting 3D coordinates ------------------
 I_warped = zeros(200,200,3);
@@ -27,7 +29,11 @@ warpedImg = cell(1,3);
 [H2to1{3},warpedImg{3}] = warpImage(I_warped, I, [image2d, top2d]);
 
 %-------- find the matching point --------------------
-[pts1, pts2] = findMatch(I,I2,0.0001,200);
+%[pts1, pts2] = findMatch(I,I2,0.0001,300);
+%[pts1,pts2] = findMatchHaris(I,I2);
+%save('matchingPoint1','pts1','pts2');
+
+load('matchingclear');
 subplot(1,5,1);
 image(I);
 hold on;
@@ -63,32 +69,25 @@ subplot(1,5,4);
 image(warpedImg{3});
     axis([0 200 0 200]);
     axis ij;
-for i=1:numel(surfaceNum)
-    hold on;
-    subplot(1,5,1);
-    plot(pts1(1,i),pts1(2,i),'ro');
-    switch surfaceNum(i)
-        case 0
-            return;
-        case 1
-            coord = [1,2];
-        case 2
-            coord = [3,2];
-        case 3
-            coord = [3,1];
-    end
-    subplot(1,5,surfaceNum(i)+1);
-    axis([0 200 0 200]);
-    axis ij;
-    x3ds = x3d(:,i);
-    hold on;
-    plot(x3ds(coord(1)),x3ds(coord(2)),'go');
-    x3ds;
-end
+
+plotpoints(1,pts1,'r',surfaceNum,x3d,'g');
 
 %-------- calculate the R t -------------------------------
 X = [x3d;pts2];
-[M, inliers] = ransac(X,'fitpnp','distpnp','degenpnp',10,150,1);
+%[M, inliers] = ransac(X,'fitpnp','distpnp','degenpnp',6,100,1);
+[R,t] = Epnp(getIntrinsic(),pts2,x3d);
+M = [R t];
+inliers = 1:13;
+
+%plot the inliers on 2D image
+pinlier = X(4:5,inliers);
+p3inlier = X(1:3,inliers);
+surfinlier = surfaceNum(inliers);
+
+subplot(1,5,5);
+image(I2);
+hold on;
+plotpoints(5,pinlier,'b',surfinlier,p3inlier,'b');
 
 %------- Calculate reprojection -------------------------------
 K = getIntrinsic();
@@ -116,7 +115,6 @@ side2dnew = side2dnew';
 top2dnew = top2dnew';
 %------- plot the new box -----------------------------------------
 subplot(1,5,5);
-image(I2);
 hold on;
 
 plot(front2dnew([1,2,3,4,1],1),front2dnew([1,2,3,4,1],2), 'c','LineWidth',3);

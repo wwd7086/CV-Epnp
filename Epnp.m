@@ -24,7 +24,7 @@ while ~isValid
         Acp(:,i) = acp;  
     end
     
-    if isempty(find(Acp==Inf))
+    if isempty(find(Acp==Inf)) && ~any(any(isnan(Acp)))
         isValid = true;
     end
 end
@@ -52,10 +52,14 @@ V = V(:,end);
 
 %solve the scale of control point
 Cc = reshape(V,3,numCp);
-distCc = pdist2(Cc',Cc');
-distCw = pdist2(Cw',Cw');
+distCc = sqrt(pdist2(Cc',Cc'));
+distCw = sqrt(pdist2(Cw',Cw'));
 rescale = distCw./distCc;
+
+%eliminate abnormal value
 rescale = rescale(rescale>0);
+rescale(rescale == Inf) = 10000000;
+
 rescale = mean(mean(rescale));
 Cc = rescale.*Cc;
 
