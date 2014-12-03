@@ -33,7 +33,7 @@ warpedImg = cell(1,3);
 %[pts1,pts2] = findMatchHaris(I,I2);
 %save('matchingPoint1','pts1','pts2');
 
-load('matchingclear');
+load('matchingPoint2');
 subplot(1,5,1);
 image(I);
 hold on;
@@ -44,7 +44,7 @@ plot(side2d([1,2,3,4,1],1),side2d([1,2,3,4,1],2), 'c','LineWidth',3);
 plot(top2d([1,2,3,4,1],1),top2d([1,2,3,4,1],2), 'c','LineWidth',3);
 
 %-------- find the 3D coordinates of the feature point --------------------
-objectSize = [200,200,200];
+objectSize = [190,250,100];
 [x3d, surfaceNum] = find3dCoord(masks, H2to1, pts1, objectSize);
 subplot(1,5,2);
 
@@ -74,20 +74,17 @@ plotpoints(1,pts1,'r',surfaceNum,x3d,'g');
 
 %-------- calculate the R t -------------------------------
 X = [x3d;pts2];
-%[M, inliers] = ransac(X,'fitpnp','distpnp','degenpnp',6,100,1);
-[R,t] = Epnp(getIntrinsic(),pts2,x3d);
-M = [R t];
-inliers = 1:13;
+[M, inliers] = ransac(X,'fitpnp','distpnp','degenpnp',6,50,1);
 
 %plot the inliers on 2D image
 pinlier = X(4:5,inliers);
 p3inlier = X(1:3,inliers);
 surfinlier = surfaceNum(inliers);
 
-subplot(1,5,5);
-image(I2);
-hold on;
-plotpoints(5,pinlier,'b',surfinlier,p3inlier,'b');
+%subplot(1,5,5);
+%image(I2);
+%hold on;
+%plotpoints(5,pinlier,'b',surfinlier,p3inlier,'b');
 
 %------- Calculate reprojection -------------------------------
 K = getIntrinsic();
@@ -115,6 +112,7 @@ side2dnew = side2dnew';
 top2dnew = top2dnew';
 %------- plot the new box -----------------------------------------
 subplot(1,5,5);
+image(I2);
 hold on;
 
 plot(front2dnew([1,2,3,4,1],1),front2dnew([1,2,3,4,1],2), 'c','LineWidth',3);

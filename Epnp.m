@@ -1,6 +1,6 @@
 function [R,T] = Epnp(K,Pi,Pw)
 %number of the control point
-numCp = 3;
+numCp = 4;
 
 au = K(1,1);
 av = K(2,2);
@@ -17,15 +17,29 @@ while ~isValid
     randCi = randperm(numPw);
     randCi = randCi(1:numCp);
     Cw = Pw(:,randCi);
-
-    %express all the point using control point
-    for i=1:numPw
-        acp = Cw\Pw(:,i);
-        Acp(:,i) = acp;  
+    
+    if numCp>=4
+        Cwt = [Cw;[1,1,1,1]];
+        %express all the point using control point
+        for i=1:numPw
+            acp = Cwt\[Pw(:,i);1];
+            Acp(:,i) = acp;  
+        end
+    elseif numCp==3
+        %express all the point using control point
+        for i=1:numPw
+            acp = Cw\Pw(:,i);
+            Acp(:,i) = acp;  
+        end
     end
     
-    if isempty(find(Acp==Inf)) && ~any(any(isnan(Acp)))
-        isValid = true;
+    if isempty(find(Acp==Inf)) && ~any(any(isnan(Acp)))     
+        if numCp>=4 && rank(Cw)==3
+            isValid = true;
+
+        elseif numCp==3 && rank(Cw)>=2
+            isValid = true;
+        end
     end
 end
 %solve the control point in camer coordinate

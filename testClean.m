@@ -19,7 +19,7 @@ Pw = x3d;
 tPi = K * [R T] * [Pw;ones(1,size(Pw,2))];
 tPi = bsxfun(@rdivide, tPi, tPi(3,:));
 
-Pi
-tPi
-%R
-%T
+%Pi
+%tPi
+R
+T

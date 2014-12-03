@@ -46,9 +46,17 @@ for i=1:numPoint
             x3ds([3,1]) = bsxfun(@times,x3d_planar,objectSize([3,1])'/200);
             x3ds(2) = 0;
     end
+
+    if ~isempty(x3ds) && surface~=0
+        x3ds = bsxfun(@minus, x3ds, objectSize/2);
+        x3ds = x3ds';
+    end
     
     x3d(:,i) = x3ds;
     surfaces(i) = surface;
+    x3ds = [];
+
+    
 end
 
 
