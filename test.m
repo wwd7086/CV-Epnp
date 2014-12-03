@@ -3,7 +3,7 @@ addpath('OpenSURF_version1c');
 addpath(genpath('MatchPoint'));
 %-------- read reference image ------------------
 I = imread('reference.jpg');
-I2 = imread('view4.jpg');
+I2 = imread('view5.jpg');
 %-------- make surface masks --------------------
 [~,~, front_mask] = imread('front mask.png','PNG');
 front_mask = bsxfun(@gt,front_mask,0);
@@ -30,10 +30,9 @@ warpedImg = cell(1,3);
 
 %-------- find the matching point --------------------
 %[pts1, pts2] = findMatch(I,I2,0.0001,300);
-%[pts1,pts2] = findMatchHaris(I,I2);
+[pts1,pts2] = findMatchHaris(I,I2);
 %save('matchingPoint1','pts1','pts2');
-
-load('matchingPoint2');
+%load('matchingPoint2');
 subplot(1,5,1);
 image(I);
 hold on;
